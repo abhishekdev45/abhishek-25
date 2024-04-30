@@ -7,17 +7,17 @@ const cors = require("cors");
 
 const authRoute = require("./routes/auth");
 const memeCoinRoute = require("./routes/meme-coins");
-// const voteRoute = require("./routes/vote");
+const websiteRoute = require("./routes/website");
 
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/user" , authRoute);
-app.use("/api/meme-coins" , memeCoinRoute);
-// app.use("/api/vote" , voteRoute);
+app.use("/api/user", authRoute);
+app.use("/api/meme-coins", memeCoinRoute);
+app.use("/api/website", websiteRoute);
 
 mongoose
-  .connect(process.env.MONGO_URL )
+  .connect(process.env.MONGO_URL)
   .then(() => {
     console.log("mongodb connected");
     app.listen(process.env.PORT || 5000, () => {

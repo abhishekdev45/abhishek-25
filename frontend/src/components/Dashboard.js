@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { url } from "../api";
-import Confetti from "react-confetti"; 
+import Confetti from "react-confetti";
 import Modal from "react-bootstrap/Modal"; // Import Bootstrap modal component
 import Button from "react-bootstrap/Button";
 
@@ -15,6 +15,7 @@ function Dashboard() {
   const [errorMessage, setErrorMessage] = useState("");
   const [winner, setWinner] = useState(null);
   const [showWinnerModal, setShowWinnerModal] = useState(false);
+  const [fileContent, setFileContent] = useState("");
 
   useEffect(() => {
     fetchMemeCoins();
@@ -60,7 +61,7 @@ function Dashboard() {
 
   const startTimer = (start, startTime) => {
     if (start && startTime) {
-      const oneHourInMillis = 3600000; // 1 hour in milliseconds
+      const oneHourInMillis = 180000; // 1 hour in milliseconds
       var date = new Date(startTime);
       const endTime = date.getTime() + oneHourInMillis;
 
@@ -116,16 +117,42 @@ function Dashboard() {
     try {
       const response = await axios.get(`${url}/api/meme-coins/winner`);
       if (response.status === 200) {
-        setWinner(response.data); // Set the winner
+        setWinner(response.data);
+        const newFileContent = `const memeTokenImageData = {\n    imageUrl: \"${response.data.imageUrl}\"\n};\n\nexport default memeTokenImageData;`;
+        setFileContent(newFileContent);
+        console.log(fileContent);
         setShowWinnerModal(true);
+
       }
     } catch (error) {
       console.error("Error fetching winner:", error);
     }
   };
 
+  useEffect(() => {
+    if (showWinnerModal) {
+      handleUpdateFile();
+    }
+  }, [showWinnerModal]);
+
+  const handleUpdateFile = async () => {
+    try {
+      console.log(fileContent);
+      const response = await axios.put(`${url}/api/website/generate-website`, {
+        content: fileContent,
+      });
+      console.log(response.data.message);
+    } catch (error) {
+      console.error("Error updating file:", error);
+    }
+  };
+
   const handleCloseWinnerModal = () => {
-    setShowWinnerModal(false); 
+    setShowWinnerModal(false);
+  };
+
+  const handleVisitWebsite = () => {
+    window.location.href = "https://meme-token-website.vercel.app/";
   };
 
   return (
@@ -152,12 +179,13 @@ function Dashboard() {
       {userRole !== "prompter" && (
         <div>
           <h2 className="text-center mb-3">Vote Now!!</h2>
-          {errorMessage && (
+          
+        </div>
+      )}
+      {errorMessage && (
             <div className="alert alert-danger" role="alert">
               {errorMessage}
             </div>
-          )}
-        </div>
       )}
       <div className="text-center mb-3">
         {loading && <div className="spinner-border" role="status"></div>}
@@ -191,22 +219,20 @@ function Dashboard() {
         ))}
       </div>
       <Modal show={showWinnerModal} onHide={handleCloseWinnerModal}>
-      <Confetti />
+        <Confetti />
         <Modal.Header closeButton>
           <Modal.Title>Winner</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {winner && (
             <>
-                
-                <img src={winner.imageUrl} alt="Winner" className="img-fluid" />
-                
+              <img src={winner.imageUrl} alt="Winner" className="img-fluid" />
             </>
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseWinnerModal}>
-            Close
+          <Button variant="secondary" onClick={handleVisitWebsite}>
+            visit this meme token website
           </Button>
         </Modal.Footer>
       </Modal>

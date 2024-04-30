@@ -30,7 +30,7 @@ router.post("/vote/:coinId", verifyToken, async (req, res) => {
     }
     const votingStartTime = memeCoin.votingStartTime;
 
-    if (!votingStartTime || Date.now() - votingStartTime > 3600000) {
+    if (!votingStartTime || Date.now() - votingStartTime > 180000) {
       // 3600000 milliseconds = 1 hour
       console.log("Voting is not currently active");
       return res
