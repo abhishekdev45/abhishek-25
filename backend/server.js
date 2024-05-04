@@ -8,6 +8,7 @@ const cors = require("cors");
 const authRoute = require("./routes/auth");
 const memeCoinRoute = require("./routes/meme-coins");
 const websiteRoute = require("./routes/website");
+const listRoute = require("./routes/list");
 
 app.use(cors());
 app.use(express.json());
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use("/api/user", authRoute);
 app.use("/api/meme-coins", memeCoinRoute);
 app.use("/api/website", websiteRoute);
+app.use("/api/list" , listRoute);
 
 mongoose
   .connect(process.env.MONGO_URL)
